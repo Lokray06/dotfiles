@@ -1,0 +1,156 @@
+/* -----------------------------------------------------------------------------
+ * Styles
+ * -------------------------------------------------------------------------- */
+
+/* General settings for the whole bar */
+#waybar {
+  /* Gruvbox Material Dark Hard - bg0_hard with slight transparency */
+  background: rgba(29, 32, 33, 0.9);
+  color: #fbf1c7; /* fg - General text color */
+  font-family: "CaskaydiaCove";
+  font-size: 14px;
+}
+
+/* Base style for all modules */
+label.module {
+  padding: 0 8px;
+}
+
+box.module {
+  margin: 2px 4px;
+  border-radius: 8px;
+  /* Slightly softer dark background (bg0) with transparency */
+  background: rgba(40, 40, 40, 0.6); 
+}
+
+/* Workspaces module */
+#workspaces {
+  padding: 0px 2px;
+}
+
+/* Make buttons look like text */
+#workspaces button {
+  all: unset; /* remove all default button styles */
+  font-family: "CaskaydiaCove";
+  font-weight: bold;
+  font-size: 14px;
+  color: #fbf1c7; /* fg - Default text color for unfocused workspaces */
+  padding: 0 2px;
+  margin: 0 2px;
+}
+
+/* Focused workspace */
+#workspaces button.focused {
+  color: #83a598; /* blue - Focused workspace text color */
+  text-decoration: underline;
+}
+
+/* Active workspace (visible window but not focused) */
+#workspaces button.active {
+  color: #FABD2F; /* fg1 - Active but not focused */
+}
+
+/* Empty workspace (no windows) */
+#workspaces button.empty {
+  color: #a89984; /* fg2 - Empty workspace text color */
+}
+
+/* Urgent workspace */
+#workspaces button.urgent {
+  color: #fb4934; /* red - Urgent workspace text color */
+}
+
+/* Window module */
+#window {
+  margin: 2px 8px;
+  font-style: italic;
+  font-weight: normal;
+  color: #d5c4a1; /* fg1 */
+}
+
+/* Tray module */
+#tray {
+  padding: 0 4px;
+  color: #fbf1c7; /* fg */
+}
+
+/* Specific module styles - Gruvbox Material accents */
+
+#clock {
+  color: #fabd2f; /* yellow */
+}
+
+#cpu {
+  color: #b8bb26; /* green */
+}
+
+#memory {
+  color: #83a598; /* blue */
+}
+
+#temperature {
+  color: #fbf1c7; /* purple */
+}
+
+#battery {
+  color: #8ec07c; /* aqua */
+}
+
+/* Battery state indicators */
+#battery.charging {
+  color: #b8bb26; /* green */
+}
+
+#battery.warning:not(.charging) {
+  color: #fabd2f; /* yellow */
+}
+
+#battery.critical:not(.charging) {
+  color: #fb4934; /* red */
+}
+
+#pulseaudio {
+  color: #fbf1c7; /* orange */
+}
+
+#network {
+  color: #83a598; /* blue */
+}
+
+/* Specific state classes (if Waybar supports them) */
+#network.disconnected {
+  color: #fb4934; /* red */
+}
+
+#backlight {
+  color: #d5c4a1; /* fg1 */
+}
+
+/* Custom Modules */
+
+#custom-updates {
+  color: #d3869b; /* purple */
+  font-weight: bold;
+}
+
+#custom-updates.pending {
+  color: #fabd2f; /* yellow */
+}
+
+#custom-tailscale {
+  color: #83a598; /* blue */
+}
+
+#custom-tailscale.connected {
+  color: #b8bb26; /* green */
+}
+
+#custom-tailscale.disconnected {
+  color: #fb4934; /* red */
+}
+
+#custom-connectssh,
+#custom-wol,
+#custom-sysmaintenance {
+  color: #d5c4a1; /* fg1 */
+}

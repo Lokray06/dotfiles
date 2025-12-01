@@ -1,0 +1,155 @@
+{
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+  "niri/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "active": "",
+      "default": "◾",
+      "empty": "·"
+    },
+    "disable-markup": true
+  },
+  "clock": {
+    "interval": 1,
+    "format": "{:%H:%M}",
+    "locale": "en_US.UTF-8",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "format-alt": "{:L%a %d/%m/%y (%H:%M:%S)}",
+    "calendar": {
+      "mode": "month",
+      "first-day": 1,
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#f9e2af'><b>{}</b></span>", // yellow
+        "days": "<span color='#96cdfb'><b>{}</b></span>", // blue
+        "weeks": "<span color='#a6e3a1'><b>W{}</b></span>", // green
+        "weekdays": "<span color='#f5c2e7'><b>{}</b></span>", // pink
+        "today": "<span color='#f38ba8'><b><u>{}</u></b></span>" // red
+      }
+    }
+  },
+  "desktop": {
+    "format": "Desktop: {name}",
+    "format-icons": {
+      "default": ""
+    },
+    "tooltip": true
+  },
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "{icon} {percent}%",
+    "format-icons": [
+      "󰃞",
+      "󰃟",
+      "󰃠"
+    ],
+    "on-scroll-up": "brightnessctl set 1%+",
+    "on-scroll-down": "brightnessctl set 1%-",
+    "tooltip-format": "Brightness",
+    "tooltip": true
+  },
+  "battery": {
+    "states": {
+      "good": 75,
+      "warning": 35,
+      "critical": 20
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-alt": "{time} {icon}",
+    "format-icons": [
+      "󰂎",
+      "󰁺",
+      "󰁻",
+      "󰁼",
+      "󰁽",
+      "󰁾",
+      "󰁿",
+      "󰂀",
+      "󰂁",
+      "󰂂",
+      "󰁹"
+    ]
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "tooltip": true,
+    "format-muted": "",
+    "on-click": "pamixer -t",
+    "on-scroll-up": "pamixer -i 5",
+    "on-scroll-down": "pamixer -d 5",
+    "scroll-step": 5,
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [
+        "",
+        "",
+        ""
+      ]
+    }
+  },
+  "pulseaudio#microphone": {
+    "format": "{format_source}",
+    "format-source": " {volume}%",
+    "format-source-muted": " ",
+    "on-click": "pamixer --default-source -t",
+    "on-scroll-up": "pamixer --default-source -i 5",
+    "on-scroll-down": "pamixer --default-source -d 5",
+    "scroll-step": 5
+  },
+  "temperature": {
+    "thermal-zone": 7,
+    "interval": 5,
+    "format": "{icon}{temperatureC}°C",
+    "format-icons": [
+      " "
+    ],
+    "format-alt-click": "click-right",
+    "critical-threshold": 80,
+    "format-critical": " {temperatureC}°C",
+    "on-click": "kitty --title btop sh -c 'btop'",
+    "tooltip-format": "CPU Temperature",
+    "tooltip": true
+  },
+  "network": {
+    "format-wifi": "  {signalStrength}%",
+    "format-ethernet": "{ipaddr}/{cidr} ",
+    "tooltip-format": "{ifname}: {essid} via {gwaddr} \n<small>down/up:  {bandwidthDownBytes}   {bandwidthUpBytes}</small>",
+    "format-linked": "{ifname} (No IP) ",
+    "format-disconnected": "Disconnected 󰌙",
+    "format-alt": "{ifname}: {ipaddr}/{cidr}",
+    "interval": 1,
+    "on-click-right": "kitty -e nmtui",
+    "max-length": 30
+  },
+  "bluetooth": {
+    "format": "  ",
+    "format-disabled": "  ",
+    "format-connected": " {num_connections}",
+    "tooltip-format": "{device_alias}",
+    "tooltip-format-connected": " {device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}",
+    "on-click": "rfkill toggle bluetooth",
+    "on-click-right": "blueman-manager"
+  },
+  "custom/power_btn": {
+    "format": "{icon}",
+    "format-icons": [
+      ""
+    ],
+    "on-click": "wlogout --protocol layer-shell",
+    "tooltip-format": "Power Options",
+    "tooltip": true
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "layer": "top",
+  "position": "top",
+  "mod": "dock",
+  "exclusive": true,
+  "passthrough": false,
+  "gtk-layer-shell": true,
+  "include": [
+    "~/.config/waybar/modules.jsonc"
+  ],
+  "modules-left": [
+    "niri/workspaces",
+    "desktop"
+  ],
+  "modules-center": [
+    "clock"
+  ],
+  // Right modules
+  "modules-right": [
+    "custom/media",
+    "group/hardware",
+    "group/audio",
+    "group/battery-network", // <-- new group
+    "group/exit"
+  ],
+  // New group for battery + network
+  "group/battery-network": {
+    "orientation": "horizontal",
+    "modules": [
+      "network",
+      "battery"
+    ]
+  },
+  // Group Hardware
+  "group/hardware": {
+    "orientation": "horizontal",
+    "modules": [
+      "temperature",
+      "backlight"
+    ]
+  },
+  // Group Audio
+  "group/audio": {
+    "orientation": "horizontal",
+    "modules": [
+      "pulseaudio",
+      "pulseaudio#microphone"
+    ]
+  },
+  // Group Exit (Power / Lock / Restart)
+  "group/exit": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/power_btn"
+    ]
+  }
+}

@@ -1,0 +1,769 @@
+--- Directory Tree for: waybar ---
+Located at: /home/juanpa/.config/waybar
+
+/home/juanpa/.config/waybar
+├── catlr.txt
+├── config.jsonc
+├── modules.jsonc
+├── scripts
+│   ├── connectssh.sh
+│   ├── github.sh
+│   ├── installaupdates.sh
+│   ├── launch.sh
+│   ├── listpackages.sh
+│   ├── mediaplayer.py
+│   ├── sysmaintenance.sh
+│   ├── tailscaleinfo.sh
+│   ├── updates.sh
+│   └── wol.sh
+└── style.css
+
+2 directories, 14 files
+
+--- File Contents (Recursive) for: waybar ---
+--- config.jsonc ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/config.jsonc
+     │ Size: 1.1 KB
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ {
+   2 │   "layer": "top",
+   3 │   "position": "top",
+   4 │   "mod": "dock",
+   5 │   "exclusive": true,
+   6 │   "passthrough": false,
+   7 │   "gtk-layer-shell": true,
+   8 │   "include": [
+   9 │     "~/.config/waybar/modules.jsonc"
+  10 │   ],
+  11 │   "modules-left": [
+  12 │     "niri/workspaces",
+  13 │     "desktop"
+  14 │   ],
+  15 │   "modules-center": [
+  16 │     "clock"
+  17 │   ],
+  18 │   // Right modules
+  19 │   "modules-right": [
+  20 │     "custom/media",
+  21 │     "group/hardware",
+  22 │     "group/audio",
+  23 │     "group/battery-network", // <-- new group
+  24 │     "group/exit"
+  25 │   ],
+  26 │   // New group for battery + network
+  27 │   "group/battery-network": {
+  28 │     "orientation": "horizontal",
+  29 │     "modules": [
+  30 │       "network",
+  31 │       "battery"
+  32 │     ]
+  33 │   },
+  34 │   // Group Hardware
+  35 │   "group/hardware": {
+  36 │     "orientation": "horizontal",
+  37 │     "modules": [
+  38 │       "temperature",
+  39 │       "battery",
+  40 │       "backlight"
+  41 │     ]
+  42 │   },
+  43 │   // Group Audio
+  44 │   "group/audio": {
+  45 │     "orientation": "horizontal",
+  46 │     "modules": [
+  47 │       "pulseaudio",
+  48 │       "pulseaudio#microphone"
+  49 │     ]
+  50 │   },
+  51 │   // Group Exit (Power / Lock / Restart)
+  52 │   "group/exit": {
+  53 │     "orientation": "horizontal",
+  54 │     "modules": [
+  55 │       "custom/power_btn"
+  56 │     ]
+  57 │   }
+  58 │ }
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/github.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/github.sh
+     │ Size: 451 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/bin/bash
+   2 │ 
+   3 │ threshhold_green=0
+   4 │ threshhold_yellow=5
+   5 │ threshhold_red=50
+   6 │ 
+   7 │ token=`cat ~/.config/.secrets/notifications.token`
+   8 │ count=`curl -u 00Darxk:${token} https://api.github.com/notifications | jq '. | length'`
+   9 │ 
+  10 │ css_class="green"
+  11 │ 
+  12 │ if [ "$count" -gt $threshhold_yellow ]; then
+  13 │     css_class="yellow"
+  14 │ fi
+  15 │ 
+  16 │ if [ "$count" -gt $threshhold_red ]; then
+  17 │     css_class="red"
+  18 │ fi
+  19 │ 
+  20 │ 
+  21 │ printf '{"text": "%d","tooltip":"$tooltip","class": "%s"}' "$count" "$css_class"
+  22 │ 
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/connectssh.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/connectssh.sh
+     │ Size: 321 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/bin/bash
+   2 │ 
+   3 │ # Set your hostname in the appropriate file
+   4 │ # disable in waybar if not needed
+   5 │ 
+   6 │ hostnameFile="$HOME/.config/.secrets/hostname.txt"
+   7 │ read -d $'\x04' hostname < "$hostnameFile"
+   8 │ 
+   9 │ ip=$(tailscale ip -4 "$hostname")
+  10 │ 
+  11 │ echo "Connecting to $hostname: $ip..."
+  12 │ read -p "Enter username: " username
+  13 │ 
+  14 │ ssh "$username"@"$ip"
+  15 │ 
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/installaupdates.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/installaupdates.sh
+     │ Size: 209 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ echo "Lista aggiornamenti pacman":
+   2 │ checkupdates
+   3 │ echo "Lista aggiornamenti AUR":
+   4 │ yay -Qua
+   5 │ read -n1 -rep 'Scaricare aggiornamenti? (s,n)' UPD
+   6 │ if [[ $UPD == "S" || $UPD == "s" ]]; then
+   7 │     yay --noconfirm -Syu
+   8 │ fi
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/launch.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/launch.sh
+     │ Size: 35 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/bin/sh
+   2 │ 
+   3 │ killall waybar
+   4 │ waybar &
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/tailscaleinfo.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/tailscaleinfo.sh
+     │ Size: 597 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/bin/bash
+   2 │ 
+   3 │ # Set your hostname in the appropriate file
+   4 │ # disable in waybar if not needed
+   5 │ 
+   6 │ hostnameFile="$HOME/.config/.secrets/hostname.txt"
+   7 │ read -d $'\x04' hostname < "$hostnameFile"
+   8 │ 
+   9 │ ip=$(tailscale ip -4 "$hostname")
+  10 │ status=$(tailscale status | grep "$hostname" | rev | cut -d' ' -f1 | rev)
+  11 │ 
+  12 │ css_class=green
+  13 │ 
+  14 │ if [ "$status" = "offline" ]; then
+  15 │     css_class=red
+  16 │     printf '{"text": "%s: %s  ", "alt": " ", "tooltip": " ", "class": "%s"}' "$hostname" "$ip" "$css_class"
+  17 │ else
+  18 │     printf '{"text": "%s: %s  ", "alt": " ", "tooltip": " ", "class": "%s"}' "$hostname" "$ip" "$css_class"
+  19 │ fi
+  20 │ 
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/updates.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/updates.sh
+     │ Size: 1.8 KB
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ threshhold_green=0
+   2 │ threshhold_yellow=15
+   3 │ threshhold_red=100
+   4 │ 
+   5 │ # -------------------------------------------------------
+   6 │ # Calculate the available updates pacman and aur (with yay)
+   7 │ # -------------------------------------------------------
+   8 │ 
+   9 │ # TODO aggiungere lista degli aggiornamenti a tooltip
+  10 │ # devono essere sulla stessa linea, separati da un "\n"
+  11 │ list_updates_arch=$(checkupdates | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g");
+  12 │ list_updates_aur=$(yay -Qua | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g");
+  13 │ 
+  14 │ if ! updates_arch=$(checkupdates | wc -l); then
+  15 │     updates_arch=0
+  16 │ fi
+  17 │ 
+  18 │ if ! updates_aur=$(yay -Qua | wc -l); then
+  19 │     updtates_aur=0
+  20 │ fi
+  21 │ 
+  22 │ list_updates=""
+  23 │ 
+  24 │ if [ "$updates_arch" -gt 0 ]; then
+  25 │     list_updates+="${list_updates_arch//$'\n'/\\n}"
+  26 │     if [ "$updates_aur" -gt 0 ]; then ## TODO sistemare brutto
+  27 │         list_updates+="\n"
+  28 │     fi
+  29 │ fi
+  30 │ 
+  31 │ if [ "$updates_aur" -gt 0 ]; then
+  32 │         list_updates+="${list_updates_aur//$'\n'/\\n}"
+  33 │ fi
+  34 │ 
+  35 │ # -------------------------------------------------------
+  36 │ # Output in JSON format for Waybar Module custom-updates
+  37 │ # -------------------------------------------------------
+  38 │ ## TODO fix HTML tag, something about escaping right idfk
+  39 │ updates=$(("$updates_arch" + "$updates_aur"))
+  40 │ tooltip="Aggiorna il Sistema\n<span size=\\\"small\\\">${updates} Pacchetti</span>:\n${list_updates}"
+  41 │ 
+  42 │ css_class="green"
+  43 │ 
+  44 │ if [ "$updates" -gt $threshhold_yellow ]; then
+  45 │     css_class="yellow"
+  46 │ fi
+  47 │ 
+  48 │ if [ "$updates" -gt $threshhold_red ]; then
+  49 │     css_class="red"
+  50 │ fi
+  51 │ 
+  52 │ if [ "$updates" -gt $threshhold_green ]; then
+  53 │     printf '{"text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s"}' "$updates" "$updates" "$tooltip" "$css_class"
+  54 │ else 
+  55 │     printf '{"text": "0", "alt": "0", "tooltip": "%s", "class": "green"}' "$tooltip"
+  56 │ fi
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/wol.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/wol.sh
+     │ Size: 339 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/bin/bash
+   2 │ 
+   3 │ # Set your ip and mac address in appropriate files
+   4 │ # disable in waybar if not needed
+   5 │ 
+   6 │ IPFile="$HOME/.config/.secrets/ip-address.txt"
+   7 │ read -d $'\x04' IPAddress < "$IPFile"
+   8 │ 
+   9 │ MACFile="$HOME/.config/.secrets/mac-address.txt"
+  10 │ read -d $'\x04' MACAddress < "$MACFile"
+  11 │ 
+  12 │ /usr/bin/wol --wait=1 --host="$IPAddress" --port=9 "$MACAddress"
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/mediaplayer.py ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/mediaplayer.py
+     │ Size: 7.6 KB
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/usr/bin/env python3
+   2 │ import gi
+   3 │ from gi.repository import Playerctl, GLib
+   4 │ from gi.repository.Playerctl import Player
+   5 │ import argparse
+   6 │ import logging
+   7 │ import sys
+   8 │ import signal
+   9 │ import gi
+  10 │ import json
+  11 │ import os
+  12 │ from typing import List
+  13 │ 
+  14 │ logger = logging.getLogger(__name__)
+  15 │ 
+  16 │ def signal_handler(sig, frame):
+  17 │     logger.info("Received signal to stop, exiting")
+  18 │     sys.stdout.write("\n")
+  19 │     sys.stdout.flush()
+  20 │     # loop.quit()
+  21 │     sys.exit(0)
+  22 │ 
+  23 │ 
+  24 │ class PlayerManager:
+  25 │     def __init__(self, selected_player=None, excluded_player=[]):
+  26 │         self.manager = Playerctl.PlayerManager()
+  27 │         self.loop = GLib.MainLoop()
+  28 │         self.manager.connect(
+  29 │             "name-appeared", lambda *args: self.on_player_appeared(*args))
+  30 │         self.manager.connect(
+  31 │             "player-vanished", lambda *args: self.on_player_vanished(*args))
+  32 │ 
+  33 │         signal.signal(signal.SIGINT, signal_handler)
+  34 │         signal.signal(signal.SIGTERM, signal_handler)
+  35 │         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+  36 │         self.selected_player = selected_player
+  37 │         self.excluded_player = excluded_player.split(',') if excluded_player else []
+  38 │ 
+  39 │         self.init_players()
+  40 │ 
+  41 │     def init_players(self):
+  42 │         for player in self.manager.props.player_names:
+  43 │             if player.name in self.excluded_player:
+  44 │                 continue
+  45 │             if self.selected_player is not None and self.selected_player != player.name:
+  46 │                 logger.debug(f"{player.name} is not the filtered player, skipping it")
+  47 │                 continue
+  48 │             self.init_player(player)
+  49 │ 
+  50 │     def run(self):
+  51 │         logger.info("Starting main loop")
+  52 │         self.loop.run()
+  53 │ 
+  54 │     def init_player(self, player):
+  55 │         logger.info(f"Initialize new player: {player.name}")
+  56 │         player = Playerctl.Player.new_from_name(player)
+  57 │         player.connect("playback-status",
+  58 │                        self.on_playback_status_changed, None)
+  59 │         player.connect("metadata", self.on_metadata_changed, None)
+  60 │         self.manager.manage_player(player)
+  61 │         self.on_metadata_changed(player, player.props.metadata)
+  62 │ 
+  63 │     def get_players(self) -> List[Player]:
+  64 │         return self.manager.props.players
+  65 │ 
+  66 │     def write_output(self, text, player):
+  67 │         logger.debug(f"Writing output: {text}")
+  68 │ 
+  69 │         output = {"text": text,
+  70 │                   "class": "custom-" + player.props.player_name,
+  71 │                   "alt": player.props.player_name}
+  72 │ 
+  73 │         sys.stdout.write(json.dumps(output) + "\n")
+  74 │         sys.stdout.flush()
+  75 │ 
+  76 │     def clear_output(self):
+  77 │         sys.stdout.write("\n")
+  78 │         sys.stdout.flush()
+  79 │ 
+  80 │     def on_playback_status_changed(self, player, status, _=None):
+  81 │         logger.debug(f"Playback status changed for player {player.props.player_name}: {status}")
+  82 │         self.on_metadata_changed(player, player.props.metadata)
+  83 │ 
+  84 │     def get_first_playing_player(self):
+  85 │         players = self.get_players()
+  86 │         logger.debug(f"Getting first playing player from {len(players)} players")
+  87 │         if len(players) > 0:
+  88 │             # if any are playing, show the first one that is playing
+  89 │             # reverse order, so that the most recently added ones are preferred
+  90 │             for player in players[::-1]:
+  91 │                 if player.props.status == "Playing":
+  92 │                     return player
+  93 │             # if none are playing, show the first one
+  94 │             return players[0]
+  95 │         else:
+  96 │             logger.debug("No players found")
+  97 │             return None
+  98 │ 
+  99 │     def show_most_important_player(self):
+ 100 │         logger.debug("Showing most important player")
+ 101 │         # show the currently playing player
+ 102 │         # or else show the first paused player
+ 103 │         # or else show nothing
+ 104 │         current_player = self.get_first_playing_player()
+ 105 │         if current_player is not None:
+ 106 │             self.on_metadata_changed(current_player, current_player.props.metadata)
+ 107 │         else:    
+ 108 │             self.clear_output()
+ 109 │ 
+ 110 │     def on_metadata_changed(self, player, metadata, _=None):
+ 111 │         logger.debug(f"Metadata changed for player {player.props.player_name}")
+ 112 │         player_name = player.props.player_name
+ 113 │         artist = player.get_artist()
+ 114 │         title = player.get_title()
+ 115 │         title = title.replace("&", "&amp;")
+ 116 │ 
+ 117 │         track_info = ""
+ 118 │         if player_name == "spotify" and "mpris:trackid" in metadata.keys() and ":ad:" in player.props.metadata["mpris:trackid"]:
+ 119 │             track_info = "Advertisement"
+ 120 │         elif artist is not None and title is not None:
+ 121 │             track_info = f"{artist} - {title}"
+ 122 │         else:
+ 123 │             track_info = title
+ 124 │ 
+ 125 │         # TODO Add Icons
+ 126 │         if track_info:
+ 127 │             if player_name == "spotify":
+ 128 │                 track_info = track_info + " "
+ 129 │             elif "chromium" in player_name:
+ 130 │                 track_info = track_info + " "
+ 131 │             if player.props.status == "Playing":
+ 132 │                 track_info = " " + track_info
+ 133 │             elif player.props.status == "Paused":
+ 134 │                 track_info = " " + track_info
+ 135 │         
+ 136 │         # ! if status it "Stopped", chromium still shows as playing even after closing tab. Open issue with chromium
+ 137 │         if player.props.status == "Stopped":
+ 138 │             track_info = ""
+ 139 │ 
+ 140 │         # only print output if no other player is playing 
+ 141 │         current_playing = self.get_first_playing_player()
+ 142 │         if current_playing is None or current_playing.props.player_name == player.props.player_name:
+ 143 │             self.write_output(track_info, player)
+ 144 │         else:
+ 145 │             logger.debug(f"Other player {current_playing.props.player_name} is playing, skipping")
+ 146 │ 
+ 147 │     def on_player_appeared(self, _, player):
+ 148 │         logger.info(f"Player has appeared: {player.name}")
+ 149 │         if player.name in self.excluded_player:
+ 150 │             logger.debug(
+ 151 │                 "New player appeared, but it's in exclude player list, skipping")
+ 152 │             return
+ 153 │         if player is not None and (self.selected_player is None or player.name == self.selected_player):
+ 154 │             self.init_player(player)
+ 155 │         else:
+ 156 │             logger.debug(
+ 157 │                 "New player appeared, but it's not the selected player, skipping")
+ 158 │ 
+ 159 │     def on_player_vanished(self, _, player):
+ 160 │         logger.info(f"Player {player.props.player_name} has vanished")
+ 161 │         self.show_most_important_player()
+ 162 │ 
+ 163 │ def parse_arguments():
+ 164 │     parser = argparse.ArgumentParser()
+ 165 │ 
+ 166 │     # Increase verbosity with every occurrence of -v
+ 167 │     parser.add_argument("-v", "--verbose", action="count", default=0)
+ 168 │ 
+ 169 │     parser.add_argument("-x", "--exclude", "- Comma-separated list of excluded player")
+ 170 │ 
+ 171 │     # Define for which player we"re listening
+ 172 │     parser.add_argument("--player")
+ 173 │ 
+ 174 │     parser.add_argument("--enable-logging", action="store_true")
+ 175 │ 
+ 176 │     return parser.parse_args()
+ 177 │ 
+ 178 │ 
+ 179 │ def main():
+ 180 │     arguments = parse_arguments()
+ 181 │ 
+ 182 │     # Initialize logging
+ 183 │     if arguments.enable_logging:
+ 184 │         logfile = os.path.join(os.path.dirname(
+ 185 │             os.path.realpath(__file__)), "media-player.log")
+ 186 │         logging.basicConfig(filename=logfile, level=logging.DEBUG,
+ 187 │                             format="%(asctime)s %(name)s %(levelname)s:%(lineno)d %(message)s")
+ 188 │ 
+ 189 │     # Logging is set by default to WARN and higher.
+ 190 │     # With every occurrence of -v it's lowered by one
+ 191 │     logger.setLevel(max((3 - arguments.verbose) * 10, 0))
+ 192 │ 
+ 193 │     logger.info("Creating player manager")
+ 194 │     if arguments.player:
+ 195 │         logger.info(f"Filtering for player: {arguments.player}")
+ 196 │     if arguments.exclude:
+ 197 │         logger.info(f"Exclude player {arguments.exclude}")
+ 198 │ 
+ 199 │     player = PlayerManager(arguments.player, arguments.exclude)
+ 200 │     player.run()
+ 201 │ 
+ 202 │ 
+ 203 │ if __name__ == "__main__":
+ 204 │     main()
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/listpackages.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/listpackages.sh
+     │ Size: 119 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ #!/bin/bash
+   2 │ 
+   3 │ pacman -Qq | fzf --preview 'pacman -Qil {}' --layout=reverse --bind 'enter:execute(pacman -Qil {} | less)'
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- scripts/sysmaintenance.sh ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/scripts/sysmaintenance.sh
+     │ Size: 556 B
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ # This code is almost entirely taken from Mr. Cejas's blog: https://fernandocejas.com/blog/engineering/2022-03-30-arch-linux-system-maintance/
+   2 │ echo "Updating system"
+   3 │ yay -Syu
+   4 │ 
+   5 │ echo "Clearing pacman cache"
+   6 │ pacman_cache_space_used="$(du -sh /var/cache/pacman/pkg/)"
+   7 │ paccache -r 
+   8 │ echo "Space saved: $pacman_cache_space_used" 
+   9 │ 
+  10 │ echo "Removing orphan packages"
+  11 │ yay -Qdtq | yay -Rns -
+  12 │ 
+  13 │ echo "Clearing ~/.cache"
+  14 │ home_cache_used="$(du -sh ~/.cache)"
+  15 │ rm -rf ~/.cache/
+  16 │ echo "Spaced saved: $home_cache_used"
+  17 │ 
+  18 │ echo "Clearing system logs"
+  19 │ journalctl --vacuum-time=7d
+  20 │ 
+  21 │ 
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- modules.jsonc ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/modules.jsonc
+     │ Size: 4.0 KB
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ {
+   2 │   "tray": {
+   3 │     "icon-size": 16,
+   4 │     "spacing": 10
+   5 │   },
+   6 │   "niri/workspaces": {
+   7 │     "format": "{icon}",
+   8 │     "format-icons": {
+   9 │       "active": "",
+  10 │       "default": "◾",
+  11 │       "empty": "·"
+  12 │     },
+  13 │     "disable-markup": true
+  14 │   },
+  15 │   "clock": {
+  16 │     "interval": 1,
+  17 │     "format": "{:%H:%M}",
+  18 │     "locale": "en_US.UTF-8",
+  19 │     "tooltip-format": "<tt><small>{calendar}</small></tt>",
+  20 │     "format-alt": "{:L%a %d/%m/%y (%H:%M:%S)}",
+  21 │     "calendar": {
+  22 │       "mode": "month",
+  23 │       "first-day": 1,
+  24 │       "mode-mon-col": 3,
+  25 │       "weeks-pos": "right",
+  26 │       "on-scroll": 1,
+  27 │       "format": {
+  28 │         "months": "<span color='#f9e2af'><b>{}</b></span>", // yellow
+  29 │         "days": "<span color='#96cdfb'><b>{}</b></span>", // blue
+  30 │         "weeks": "<span color='#a6e3a1'><b>W{}</b></span>", // green
+  31 │         "weekdays": "<span color='#f5c2e7'><b>{}</b></span>", // pink
+  32 │         "today": "<span color='#f38ba8'><b><u>{}</u></b></span>" // red
+  33 │       }
+  34 │     }
+  35 │   },
+  36 │   "desktop": {
+  37 │     "format": "Desktop: {name}",
+  38 │     "format-icons": {
+  39 │       "default": ""
+  40 │     },
+  41 │     "tooltip": true
+  42 │   },
+  43 │   "backlight": {
+  44 │     "device": "intel_backlight",
+  45 │     "format": "{icon} {percent}%",
+  46 │     "format-icons": [
+  47 │       "󰃞",
+  48 │       "󰃟",
+  49 │       "󰃠"
+  50 │     ],
+  51 │     "on-scroll-up": "brightnessctl set 1%+",
+  52 │     "on-scroll-down": "brightnessctl set 1%-",
+  53 │     "tooltip-format": "Brightness",
+  54 │     "tooltip": true
+  55 │   },
+  56 │   "battery": {
+  57 │     "states": {
+  58 │       "good": 75,
+  59 │       "warning": 35,
+  60 │       "critical": 20
+  61 │     },
+  62 │     "format": "{icon} {capacity}%",
+  63 │     "format-charging": " {capacity}%",
+  64 │     "format-plugged": " {capacity}%",
+  65 │     "format-alt": "{time} {icon}",
+  66 │     "format-icons": [
+  67 │       "󰂎",
+  68 │       "󰁺",
+  69 │       "󰁻",
+  70 │       "󰁼",
+  71 │       "󰁽",
+  72 │       "󰁾",
+  73 │       "󰁿",
+  74 │       "󰂀",
+  75 │       "󰂁",
+  76 │       "󰂂",
+  77 │       "󰁹"
+  78 │     ]
+  79 │   },
+  80 │   "pulseaudio": {
+  81 │     "format": "{icon} {volume}%",
+  82 │     "tooltip": true,
+  83 │     "format-muted": "",
+  84 │     "on-click": "pamixer -t",
+  85 │     "on-scroll-up": "pamixer -i 5",
+  86 │     "on-scroll-down": "pamixer -d 5",
+  87 │     "scroll-step": 5,
+  88 │     "format-icons": {
+  89 │       "headphone": "",
+  90 │       "hands-free": "",
+  91 │       "headset": "",
+  92 │       "phone": "",
+  93 │       "portable": "",
+  94 │       "car": "",
+  95 │       "default": [
+  96 │         "",
+  97 │         "",
+  98 │         ""
+  99 │       ]
+ 100 │     }
+ 101 │   },
+ 102 │   "pulseaudio#microphone": {
+ 103 │     "format": "{format_source}",
+ 104 │     "format-source": " {volume}%",
+ 105 │     "format-source-muted": " ",
+ 106 │     "on-click": "pamixer --default-source -t",
+ 107 │     "on-scroll-up": "pamixer --default-source -i 5",
+ 108 │     "on-scroll-down": "pamixer --default-source -d 5",
+ 109 │     "scroll-step": 5
+ 110 │   },
+ 111 │   "temperature": {
+ 112 │     "thermal-zone": 7,
+ 113 │     "interval": 5,
+ 114 │     "format": "{icon}{temperatureC}°C",
+ 115 │     "format-icons": [
+ 116 │       " "
+ 117 │     ],
+ 118 │     "format-alt-click": "click-right",
+ 119 │     "critical-threshold": 80,
+ 120 │     "format-critical": " {temperatureC}°C",
+ 121 │     "on-click": "kitty --title btop sh -c 'btop'",
+ 122 │     "tooltip-format": "CPU Temperature",
+ 123 │     "tooltip": true
+ 124 │   },
+ 125 │   "network": {
+ 126 │     "format-wifi": "  {signalStrength}%",
+ 127 │     "format-ethernet": "{ipaddr}/{cidr} ",
+ 128 │     "tooltip-format": "{ifname}: {essid} via {gwaddr} \n<small>down/up:  {bandwidthDownBytes}   {bandwidthUpBytes}</small>",
+ 129 │     "format-linked": "{ifname} (No IP) ",
+ 130 │     "format-disconnected": "Disconnected 󰌙",
+ 131 │     "format-alt": "{ifname}: {ipaddr}/{cidr}",
+ 132 │     "interval": 1,
+ 133 │     "on-click-right": "kitty -e nmtui",
+ 134 │     "max-length": 30
+ 135 │   },
+ 136 │   "bluetooth": {
+ 137 │     "format": "  ",
+ 138 │     "format-disabled": "  ",
+ 139 │     "format-connected": " {num_connections}",
+ 140 │     "tooltip-format": "{device_alias}",
+ 141 │     "tooltip-format-connected": " {device_enumerate}",
+ 142 │     "tooltip-format-enumerate-connected": "{device_alias}",
+ 143 │     "on-click": "rfkill toggle bluetooth",
+ 144 │     "on-click-right": "blueman-manager"
+ 145 │   },
+ 146 │   "custom/power_btn": {
+ 147 │     "format": "{icon}",
+ 148 │     "format-icons": [
+ 149 │       ""
+ 150 │     ],
+ 151 │     "on-click": "wlogout --protocol layer-shell",
+ 152 │     "tooltip-format": "Power Options",
+ 153 │     "tooltip": true
+ 154 │   }
+ 155 │ }
+─────┴──────────────────────────────────────────────────────────────────────────
+
+--- style.css ---
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ File: /home/juanpa/.config/waybar/style.css
+     │ Size: 1.4 KB
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ * {
+   2 │   border: none;
+   3 │   border-radius: 0;
+   4 │   font-family: "CaskaydiaCove";
+   5 │   font-weight: bold;
+   6 │   font-size: 14px;
+   7 │   padding: 2px;
+   8 │ }
+   9 │ 
+  10 │ window#waybar {
+  11 │   background: rgba(21, 18, 27, 0.6);
+  12 │   color: #cdd6f4;
+  13 │   border-bottom: 0.5px solid #fffff0;
+  14 │ }
+  15 │ 
+  16 │ /* Groups styling (optional) */
+  17 │ window .modules-left,
+  18 │ window .modules-center,
+  19 │ window .modules-right {
+  20 │   padding: 0 2px;
+  21 │ }
+  22 │ 
+  23 │ /* Modules */
+  24 │ label.module {
+  25 │   padding: 0 8px;
+  26 │ }
+  27 │ 
+  28 │ box.module {
+  29 │   margin: 2px 4px;
+  30 │   border-radius: 8px;
+  31 │   background: rgba(8, 7, 10, 0.6);
+  32 │ }
+  33 │ 
+  34 │ /* Workspaces module */
+  35 │ #workspaces {
+  36 │   padding: 0px 2px;
+  37 │ }
+  38 │ 
+  39 │ /* Make buttons look like text */
+  40 │ #workspaces button {
+  41 │   all: unset; /* remove all default button styles */
+  42 │   font-family: "CaskaydiaCove";
+  43 │   font-weight: bold;
+  44 │   font-size: 14px;
+  45 │   color: #cdd6f4;
+  46 │   padding: 0 2px;
+  47 │   margin: 0 2px;
+  48 │ }
+  49 │ 
+  50 │ /* Focused workspace */
+  51 │ #workspaces button.focused {
+  52 │   color: #60afff; /* light blue */
+  53 │   text-decoration: underline;
+  54 │ }
+  55 │ 
+  56 │ /* Active workspace */
+  57 │ #workspaces button.active {
+  58 │   color: #8ae234; /* green */
+  59 │ }
+  60 │ 
+  61 │ /* Urgent workspace */
+  62 │ #workspaces button.urgent {
+  63 │   color: #ff5555; /* red */
+  64 │   font-weight: bolder;
+  65 │ }
+  66 │ 
+  67 │ /* Empty workspace */
+  68 │ #workspaces button.empty {
+  69 │   color: #6c7086; /* dim */
+  70 │ }
+  71 │ 
+  72 │ /* Named workspace colors */
+  73 │ #workspaces button#niri-workspace-browser { color: #f9e2af; }
+  74 │ #workspaces button#niri-workspace-discord { color: #8bd5ca; }
+  75 │ #workspaces button#niri-workspace-chat { color: #f5c2e7; }
+─────┴──────────────────────────────────────────────────────────────────────────
+
+
+--- End of Listing ---
