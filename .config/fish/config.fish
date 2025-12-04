@@ -28,3 +28,5 @@ bind \b backward-kill-word
 
 # Ctrl+Delete → delete next word
 bind \e\[3\;5~ kill-word
+
+export MANPAGER='nvim +Man!'
